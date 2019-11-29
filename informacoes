@@ -1,0 +1,31 @@
+Backend para GamePlus - Mobile
+
+Informações sobre o servidor:
+
+IP 	> 35.239.12.234
+Senha 	> wolf123
+Porta	> 22
+Mysql
+BD	> game
+Senha	> 1234
+Porta	> 3306
+
+
+Informações sobre o Laravel:
+
+Criando o projeto:
+> composer create-project --prefer-dist laravel/laravel game-plus "5.8.*"
+
+Acessando e botando pra funcionar
+> cd game-plus
+> php artisan serve
+
+Instalando protetor para autenticação 
+> composer require tymon/jwt-auth "1.0.*"
+
+Gerando chave secreta pra assinar as sessões
+> php artisan jwt:secret
+
+
+> composer require barryvdh/laravel-cors
+
