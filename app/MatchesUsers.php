@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\DB;
 
 
-class MatchUser extends Model
+class MatchesUsers extends Model
 {
     //
     use SoftDeletes;
@@ -18,12 +18,12 @@ class MatchUser extends Model
 
     public function user()
     {
-        return $this->belongsTo('App\User');
+        return $this->belongsTo('App\Users');
     }
 
     public function matche()
     {
-        return $this->belongsTo('App\Match');
+        return $this->belongsTo('App\Matches');
     }
 
 }
