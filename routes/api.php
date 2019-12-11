@@ -9,7 +9,7 @@ Route::post('/logout', 'AuthController@logout');
 
 Route::get('/teste', function () {
     return 'oi';
-});
+})->middleware('api');
 
 Route::resource('/games', 'GamesController')->middleware('api');
 Route::resource('/matches', 'MatchesController')->middleware('api');
