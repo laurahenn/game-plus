@@ -11,7 +11,7 @@ use Tymon\JWTAuth\Contracts\JWTSubject;
 class Users extends Authenticatable implements JWTSubject
 {
     use Notifiable;
-
+    public $timestamps = false;
     
     public function getJWTIdentifier()
     {
@@ -35,7 +35,7 @@ class Users extends Authenticatable implements JWTSubject
      * @var array
      */
     protected $fillable = [
-        'name', 'email', 'password', 'photo', 'nMatches', 'nGames', 
+        'id', 'name', 'email', 'password', 'photo', 'nMatches', 'nGames', 
         'nFaulty', 'totalPay', 'nCreate', 'validity'
     ];
 

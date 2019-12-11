@@ -3,18 +3,15 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\DB;
 
 
 class Matches extends Model
 {
-    //
-    use SoftDeletes;
-
-    protected $fillable = ['name','timeStart','lati','long', 'pin', 'value', 'ownerId', 'gameId'];
-
-    protected $dates = ['deleted_at'];
+    public $timestamps = false;
+    
+    protected $fillable = ['id','name','timeStart','latitu','longitu', 
+                            'pin', 'value', 'ownerId', 'gameId'];
 
     public function owner()
     {

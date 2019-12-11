@@ -3,35 +3,29 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 use App\Users;
 
 class UsersController extends Controller
 {
     public function index()
     {
-        //
         return Users::all();
     }
 
     public function store(Request $request)
     {
         $data = $request->all();
-
-        //Validação de maneira manual
-        // $validacao = \Validator::make($data,[
-        //     "name" => "required",
-        //     "nPlayers" => "required",
-        //     "nTeams" => "required",
-        //     "time" => "required"
-        // ]);
-
-        // if($validacao->fails()) {
-        //     return redirect()->back()->withErrors($validacao)->withInput();
-        // }
         
-        Users::create($data);
+        $data['id'] = (DB::table('users')->max('id'))+1;
+        $data['password'] = Hash::make($data['password']);
 
-        return redirect()->back();
+        $obj = Users::create($data);
+
+        $return = Users::find($data['id']);        
+        return $return;
+
     }
 
     public function show($id)
@@ -39,18 +33,22 @@ class UsersController extends Controller
         return Users::find($id); 
     }
 
-    public function edit($id)
-    {
-        //
-    }
-
+    
     public function update(Request $request, $id)
     {
-        //
+        $data = $request->all();
+        
+        $data['password'] = Hash::make($data['password']);
+        Users::find($id)->update($data);
+
+
+        $return = Users::find($id);     
+        return $return;
     }
 
     public function destroy($id)
     {
-        //
+        Users::find($id)->delete();
+        return 'success';
     }
 }
