@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Hash;
 use App\Users;
 
 class UsersController extends Controller
@@ -19,7 +18,7 @@ class UsersController extends Controller
         $data = $request->all();
         
         $data['id'] = (DB::table('users')->max('id'))+1;
-        $data['password'] = Hash::make($data['password']);
+        // $data['password'] = md5($data['password']);
 
         $obj = Users::create($data);
 
@@ -38,7 +37,7 @@ class UsersController extends Controller
     {
         $data = $request->all();
         
-        $data['password'] = Hash::make($data['password']);
+        // $data['password'] = md5($data['password']);
         Users::find($id)->update($data);
 
 

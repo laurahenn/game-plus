@@ -2,88 +2,70 @@
 
 namespace App\Http\Controllers;
 
+use Hash;
+use JWTAuth;
+use App\Users;
+use Illuminate\Http\Request;
+use App\Services\PasswordService;
+use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Password;
 
 class AuthController extends Controller
 {
-  public function signin()
-  {
-    if (session_status() == PHP_SESSION_NONE) {
-      session_start();
+    /**
+     * Create a new AuthController instance.
+     *
+     * @return void
+     */
+    public function __construct()
+    {
+        $this->middleware('auth:api', ['except' => ['login', 'logout', 'users']]);
     }
 
-    // Initialize the OAuth client
-    $oauthClient = new \League\OAuth2\Client\Provider\GenericProvider([
-      'clientId'                => env('OAUTH_APP_ID'),
-      'clientSecret'            => env('OAUTH_APP_PASSWORD'),
-      'redirectUri'             => env('OAUTH_REDIRECT_URI'),
-      'urlAuthorize'            => env('OAUTH_AUTHORITY').env('OAUTH_AUTHORIZE_ENDPOINT'),
-      'urlAccessToken'          => env('OAUTH_AUTHORITY').env('OAUTH_TOKEN_ENDPOINT'),
-      'urlResourceOwnerDetails' => '',
-      'scopes'                  => env('OAUTH_SCOPES')
-    ]);
+    public function login()
+    {
+        $credentials = request(['email', 'password']);
 
-    // Generate the auth URL
-    $authorizationUrl = $oauthClient->getAuthorizationUrl();
+        if (! $token = auth('api')->attempt($credentials)) {
+            $user = Users::where('email', '=', request('email'))
+                ->where('password', md5(request('password')))
+                ->first();
 
-    // Save client state so we can validate in response
-    $_SESSION['oauth_state'] = $oauthClient->getState();
+            if ($user) {
+                                
+                $token = JWTAuth::fromUser($user);
+                return $this->respondWithToken($token);
+            }
+            return response()->json(['error' => 'error'], 401);
+        }
 
-    // Redirect to authorization endpoint
-    header('Location: '.$authorizationUrl);
-    exit();
-  }
-
-  public function gettoken()
-  {
-    if (session_status() == PHP_SESSION_NONE) {
-      session_start();
+        return $this->respondWithToken($token);
     }
 
-    // Authorization code should be in the "code" query param
-    if (isset($_GET['code'])) {
-      // Check that state matches
-      if (empty($_GET['state']) || ($_GET['state'] !== $_SESSION['oauth_state'])) {
-        exit('State provided in redirect does not match expected value.');
-      }
+    public function me()
+    {
+        return response()->json(auth('api')->user());
+    }
 
-      // Clear saved state
-      unset($_SESSION['oauth_state']);
+    public function logout()
+    {
+        auth('api')->logout();
 
-      // Initialize the OAuth client
-      $oauthClient = new \League\OAuth2\Client\Provider\GenericProvider([
-        'clientId'                => env('OAUTH_APP_ID'),
-        'clientSecret'            => env('OAUTH_APP_PASSWORD'),
-        'redirectUri'             => env('OAUTH_REDIRECT_URI'),
-        'urlAuthorize'            => env('OAUTH_AUTHORITY').env('OAUTH_AUTHORIZE_ENDPOINT'),
-        'urlAccessToken'          => env('OAUTH_AUTHORITY').env('OAUTH_TOKEN_ENDPOINT'),
-        'urlResourceOwnerDetails' => '',
-        'scopes'                  => env('OAUTH_SCOPES')
-      ]);
+        return response()->json(['message' => 'Successfully logged out']);
+    }
 
-      try {
-        // Make the token request
-        $accessToken = $oauthClient->getAccessToken('authorization_code', [
-          'code' => $_GET['code']
+    public function refresh()
+    {
+        return $this->respondWithToken(auth('api')->refresh());
+    }
+
+    protected function respondWithToken($token)
+    {
+        return response()->json([
+            'access_token' => $token,
+            'token_type' => 'bearer',
+            'expires_in' => auth('api')->factory()->getTTL() * 60
         ]);
-
-        // Save the access token and refresh tokens in session
-        // This is for demo purposes only. A better method would
-        // be to store the refresh token in a secured database
-        $tokenCache = new \App\TokenStore\TokenCache;
-        $tokenCache->storeTokens($accessToken->getToken(), $accessToken->getRefreshToken(),
-          $accessToken->getExpires());
-
-        // Redirect back to mail page
-        return redirect()->route('mail');
-      }
-      catch (League\OAuth2\Client\Provider\Exception\IdentityProviderException $e) {
-        exit('ERROR getting tokens: '.$e->getMessage());
-      }
-      exit();
     }
-    elseif (isset($_GET['error'])) {
-      exit('ERROR: '.$_GET['error'].' - '.$_GET['error_description']);
-    }
-  }
 }
