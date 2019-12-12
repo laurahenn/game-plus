@@ -10,7 +10,7 @@ class Matches extends Model
 {
     public $timestamps = false;
     
-    protected $fillable = ['id','name','timeStart','latitu','longitu', 
+    protected $fillable = ['id','name','dateStart','timeStart','latitu','longitu', 
                             'pin', 'value', 'ownerId', 'gameId'];
 
     public function owner()
