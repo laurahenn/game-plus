@@ -32,12 +32,19 @@ class AuthController extends Controller
                 ->where('password', md5(request('password')))
                 ->first();
 
-            if ($user) {
-                                
+            if ($user) {                                
                 $token = JWTAuth::fromUser($user);
-                return $this->respondWithToken($token);
+
+                return [
+                    'success' => true,
+                    'token' => $this->respondWithToken($token),
+                    'user' => $user
+                ];
             }
-            return response()->json(['error' => 'error'], 401);
+
+            return [
+                'success' => false,
+            ];
         }
 
         return $this->respondWithToken($token);
@@ -52,7 +59,10 @@ class AuthController extends Controller
     {
         auth('api')->logout();
 
-        return response()->json(['message' => 'Successfully logged out']);
+        // return response()->json(['message' => 'Successfully logged out']);
+        return [
+            'success' => true,
+        ];
     }
 
     public function refresh()
