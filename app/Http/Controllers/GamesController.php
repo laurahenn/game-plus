@@ -11,7 +11,12 @@ class GamesController extends Controller
 {
     public function index()
     {
-        return Games::all();
+        $games = Games::all();
+        if (!$games) {
+            return [ 'success' => false, 'games' => '' ];
+        }
+
+        return [ 'success' => false, 'games' => $games ];
     }
 
     public function store(Request $request)
@@ -21,29 +26,45 @@ class GamesController extends Controller
         $data['id'] = (DB::table('games')->max('id'))+1;
 
         $obj = Games::create($data);
+        if (!$obj) {
+            return [ 'success' => false, 'game' => '' ];
+        }
 
         $return = Games::find($data['id']);        
-        return $return;
+        return [ 'success' => true, 'game' => $return ];
     }
 
     public function show($id)
     {
-        return Games::find($id); 
+        $game = Games::find($id); 
+        if (!$game) {
+            return [ 'success' => false, 'game' => '' ];
+        }
+        return [ 'success' => true, 'game' => $game ];
     }
 
     public function update(Request $request, $id)
     {
         $data = $request->all();
         
-        Games::find($id)->update($data);
+        $obj = Games::find($id)->update($data);
 
+        if (!$obj) {
+            return [ 'success' => false, 'game' => '' ];
+        }
+        
         $return = Games::find($id);     
-        return $return;
+        return [ 'success' => true, 'game' => $return ];
     }
 
     public function destroy($id)
     {
-        Games::find($id)->delete();
-        return 'success';
+        $game = Games::find($id);
+        if (!$game) {
+            return [ 'success' => false ];
+        }
+
+        $game->delete();
+        return [ 'success' => true ];     
     }
 }

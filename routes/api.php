@@ -16,6 +16,8 @@ Route::resource('/matches', 'MatchesController')->middleware('api');
 Route::resource('/matches-users', 'MatchesUsersController')->middleware('api');
 Route::resource('/users', 'UsersController')->middleware('api');
 
+Route::get('/matches-games/{id}', 'MatchesController@matches_games')->middleware('api');
+Route::get('/matches-available/{id}', 'MatchesController@matches_available')->middleware('api');
 
 
 

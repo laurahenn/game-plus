@@ -10,7 +10,12 @@ class MatchesUsersController extends Controller
 {
     public function index()
     {
-        return MatchesUsers::all();
+        $matches_users = MatchesUsers::all();
+
+        if (!$matches_users) {
+            return [ 'success' => false, 'matches_users' => '' ];
+        }
+        return [ 'success' => true, 'matches_users' => $matches_users ];
     }
 
     public function store(Request $request)
@@ -20,29 +25,45 @@ class MatchesUsersController extends Controller
         $data['id'] = (DB::table('matches_users')->max('id'))+1;
 
         $obj = MatchesUsers::create($data);
+        if (!$obj) {
+            return [ 'success' => false, 'match_user' => '' ];
+        }
 
         $return = MatchesUsers::find($data['id']);        
-        return $return;
+        return [ 'success' => true, 'match_user' => $return ];
     }
 
     public function show($id)
     {
-        return MatchesUsers::find($id); 
+        $match_user = MatchesUsers::find($id); 
+        if (!$match_user) {
+            return [ 'success' => false, 'match_user' => '' ];
+        }
+        return [ 'success' => true, 'match_user' => $match_user ];
     }
 
     public function update(Request $request, $id)
     {
         $data = $request->all();
         
-        MatchesUsers::find($id)->update($data);
+        $obj = MatchesUsers::find($id)->update($data);
 
+        if (!$obj) {
+            return [ 'success' => false, 'match_user' => '' ];
+        }
+        
         $return = MatchesUsers::find($id);     
-        return $return;
+        return [ 'success' => true, 'match_user' => $return ];
     }
 
     public function destroy($id)
     {
-        MatchesUsers::find($id)->delete();
-        return 'success';
+        $match_user = MatchesUsers::find($id);
+        if (!$match_user) {
+            return [ 'success' => false ];
+        }
+
+        $match_user->delete();
+        return [ 'success' => true ];      
     }
 }
