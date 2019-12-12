@@ -22,6 +22,17 @@ class MatchesController extends Controller
             ];
         }
 
+        foreach ($matches as $key => $match) {
+
+            $user = Users::where('id','=',$match['ownerId'])->first();
+            $game = Games::where('id','=',$match['gameId'])->first();
+            $available = $this->matches_available($match['id']);
+
+            $matches[$key]['ownerName'] = $user['name'];
+            $matches[$key]['gameName']  = $game['name'];
+            $matches[$key]['matchesAvailable'] = $available['matches_available'];
+        }
+
         return [
             'success' => true,
             'matches' => $matches
@@ -63,7 +74,7 @@ class MatchesController extends Controller
 
         $user = Users::where('id','=',$match['ownerId'])->first();
         $game = Games::where('id','=',$match['gameId'])->first();
-        $available = $this->matches_available(null,$match['id']);
+        $available = $this->matches_available($match['id']);
 
         $match['ownerName'] = $user['name'];
         $match['gameName']  = $game['name'];
@@ -108,7 +119,7 @@ class MatchesController extends Controller
 
             $user = Users::where('id','=',$match['ownerId'])->first();
             $game = Games::where('id','=',$match['gameId'])->first();
-            $available = $this->matches_available(null,$match['id']);
+            $available = $this->matches_available($match['id']);
 
             $matches[$key]['ownerName'] = $user['name'];
             $matches[$key]['gameName']  = $game['name'];
@@ -119,7 +130,7 @@ class MatchesController extends Controller
     }
 
     //  id > Procura vagas disponiveis de uma partida pelo código da partida
-    public function matches_available(Request $request = null, $id)
+    public function matches_available($id)
     {
         $nUsers     = MatchesUsers::where('matchId','=',$id)->count();
         $matches    = Matches::where('id','=',$id)->first();
